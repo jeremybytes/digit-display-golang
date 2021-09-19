@@ -14,8 +14,8 @@ func LoadData(path string, offset int, recordCount int) (training []string, vali
 	allData := string(bytes)
 	dataLines := strings.Split(allData, "\n")
 
-	trainingData := append(dataLines[(offset+recordCount+1):], dataLines[1:offset]...)
-	validationData := dataLines[(1 + offset):(offset + recordCount)]
+	trainingData := append(dataLines[(offset+recordCount+2):], dataLines[1:offset]...)
+	validationData := dataLines[(1 + offset):(1 + offset + recordCount)]
 
 	return trainingData, validationData, nil
 }
