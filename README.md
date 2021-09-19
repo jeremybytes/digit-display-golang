@@ -17,4 +17,4 @@ Functions:
 
 Note:  
 
-Running the Euclidean recognizer on 3000 records takes **17-ish seconds**. The equivalent application from the .NET project takes **32-ish seconds** for the same data set.
+Running the Euclidean recognizer on 3000 records takes **17-ish seconds**. The equivalent application from the .NET project takes **32-ish seconds** for the same data set. The code is not equivalent (the .NET code has some maps and minBys), but the results are. I'll be exploring this a bit further.
