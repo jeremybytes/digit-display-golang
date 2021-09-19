@@ -47,7 +47,7 @@ func main() {
 	fmt.Printf("STARTING...\n")
 	startTime := time.Now()
 
-	training, validation, err := fileloader.LoadData("./data/train.csv", 3000, 3000)
+	training, validation, err := fileloader.LoadData("./data/train.csv", 3000, 1000)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -110,5 +110,7 @@ func main() {
 	}
 
 	fmt.Println("==============================================")
+	fmt.Printf("Total records: %v\n", total)
+	fmt.Printf("Time elapsed: %v\n\n", elapsed)
 	fmt.Printf("Errors: %v", missedCount)
 }
