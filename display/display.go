@@ -18,20 +18,18 @@ func OutputImage(imageData []int) {
 }
 
 func getDisplayCharForPixel(i int) string {
-	if i > 16 && i < 32 {
+	switch {
+	case (i > 16 && i < 32):
 		return "."
-	}
-	if i >= 32 && i < 64 {
+	case (i >= 32 && i < 64):
 		return ":"
-	}
-	if i >= 64 && i < 160 {
+	case (i >= 64 && i < 160):
 		return "o"
-	}
-	if i >= 160 && i < 224 {
+	case (i >= 160 && i < 224):
 		return "O"
-	}
-	if i >= 224 {
+	case (i >= 224):
 		return "@"
+	default:
+		return " "
 	}
-	return " "
 }
