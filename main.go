@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"./display"
-	"./fileloader"
-	"./recognize"
+	"digits/display"
+	"digits/fileloader"
+	"digits/recognize"
 )
 
 func stringToActual(record string) (int, error) {
