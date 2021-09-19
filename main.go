@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"digits/display"
-	"digits/fileloader"
-	"digits/recognize"
+	"github.com/jeremybytes/digit-display-golang/display"
+	"github.com/jeremybytes/digit-display-golang/fileloader"
+	"github.com/jeremybytes/digit-display-golang/recognize"
 )
 
 func stringToActual(record string) (int, error) {
