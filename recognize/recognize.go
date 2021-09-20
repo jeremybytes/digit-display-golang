@@ -52,5 +52,8 @@ func ParseRecord(record string) (number int, pixels []int, err error) {
 
 func GetPrediction(pixels []int, classifier Classifier) (prediction int, closest []int, err error) {
 	prediction, closest, err = classifier.Predict(pixels)
+	if err != nil {
+		return -1, nil, fmt.Errorf("method Predict failed: %v", err)
+	}
 	return
 }

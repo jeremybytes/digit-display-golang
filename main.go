@@ -54,12 +54,9 @@ func main() {
 				return
 			}
 			prediction, closest, err := recognize.GetPrediction(pixels, classifier)
-			if err != nil {
+			if prediction != actual || err != nil {
 				// add to missed
 				missed <- Prediction{actual, pixels, prediction, nil}
-			}
-			if prediction != actual {
-				missed <- Prediction{actual, pixels, prediction, closest}
 			}
 			ch <- Prediction{actual, pixels, prediction, closest}
 		}(record)
