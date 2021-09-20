@@ -16,8 +16,8 @@ func (c *ManhattanClassifier) Train(traingingData []string) error {
 		obs := Observation{actual, pixels}
 		c.TrainingData = append(c.TrainingData, obs)
 	}
-	if len(c.TrainingData) <= 0 {
-		return fmt.Errorf("Train produced no valid traning data")
+	if len(c.TrainingData) == 0 {
+		return fmt.Errorf("method Train produced no valid traning data")
 	}
 	return nil
 }
@@ -46,7 +46,7 @@ func (c ManhattanClassifier) Predict(pixels []int) (prediction int, closest []in
 	}
 
 	if bestPrediction == -1 {
-		return -1, nil, fmt.Errorf("Unable to get a valid prediction")
+		return -1, nil, fmt.Errorf("unable to get a valid prediction")
 	}
 
 	return bestPrediction, bestPixels, err

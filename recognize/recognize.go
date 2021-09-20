@@ -20,7 +20,7 @@ func stringToActual(record string) (int, error) {
 	items := strings.Split(record, ",")
 	output, err := strconv.Atoi(items[0])
 	if err != nil {
-		return -1, fmt.Errorf("Unable to parse actual value: %v", err)
+		return -1, fmt.Errorf("unable to parse actual value: %v", err)
 	}
 	return output, nil
 }
@@ -31,7 +31,7 @@ func stringToIntArray(record string) ([]int, error) {
 	for i, pixel := range items[1:] {
 		output, err := strconv.Atoi(pixel)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to parse pixel value (%s): %v", pixel, err)
+			return nil, fmt.Errorf("unable to parse pixel value (%s): %v", pixel, err)
 		}
 		ints[i] = output
 	}
@@ -41,11 +41,11 @@ func stringToIntArray(record string) ([]int, error) {
 func ParseRecord(record string) (number int, pixels []int, err error) {
 	number, err = stringToActual(record)
 	if err != nil {
-		return -1, nil, fmt.Errorf("Unable to parse number value: %v", err)
+		return -1, nil, fmt.Errorf("unable to parse number value: %v", err)
 	}
 	pixels, err = stringToIntArray(record)
 	if err != nil {
-		return -1, nil, fmt.Errorf("Unable to parse pixels: %v", err)
+		return -1, nil, fmt.Errorf("unable to parse pixels: %v", err)
 	}
 	return number, pixels, nil
 }
