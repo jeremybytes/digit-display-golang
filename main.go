@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -14,28 +12,6 @@ import (
 	"github.com/jeremybytes/digit-display-golang/fileloader"
 	"github.com/jeremybytes/digit-display-golang/recognize"
 )
-
-func stringToActual(record string) (int, error) {
-	items := strings.Split(record, ",")
-	output, err := strconv.Atoi(items[0])
-	if err != nil {
-		return -1, fmt.Errorf("Unable to parse actual value: %v", err)
-	}
-	return output, nil
-}
-
-func stringToIntArray(record string) ([]int, error) {
-	items := strings.Split(record, ",")
-	ints := make([]int, 784)
-	for i, pixel := range items[1:] {
-		output, err := strconv.Atoi(pixel)
-		if err != nil {
-			return nil, fmt.Errorf("Unable to parse pixel value (%s): %v", pixel, err)
-		}
-		ints[i] = output
-	}
-	return ints, nil
-}
 
 func writeOutput(prediction int, actual int, pixels []int) {
 	fmt.Printf("Actual: %v - Prediction: %v", actual, prediction)
@@ -53,7 +29,7 @@ func main() {
 	fmt.Printf("STARTING...\n")
 	startTime := time.Now()
 
-	training, validation, err := fileloader.LoadData("./data/train.csv", 3000, 100)
+	training, validation, err := fileloader.LoadData("./data/train.csv", 3000, 1000)
 	if err != nil {
 		log.Fatalf("Unable to load data: %v", err)
 	}
@@ -72,16 +48,9 @@ func main() {
 		wg.Add(1)
 		go func(record string) {
 			defer wg.Done()
-			actual, err := stringToActual(record)
+			actual, pixels, err := recognize.ParseRecord(record)
 			if err != nil {
-				// maybe log here later
-				// for now, return from this iteration
-				return
-			}
-			pixels, err := stringToIntArray(record)
-			if err != nil {
-				// maybe log here later
-				// for now, return from this iteration
+				// maybe log here later; for now, return from this iteration
 				return
 			}
 			prediction, closest, err := recognize.GetPrediction(pixels, classifier)

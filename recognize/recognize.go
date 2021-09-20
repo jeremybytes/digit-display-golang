@@ -38,6 +38,18 @@ func stringToIntArray(record string) ([]int, error) {
 	return ints, nil
 }
 
+func ParseRecord(record string) (number int, pixels []int, err error) {
+	number, err = stringToActual(record)
+	if err != nil {
+		return -1, nil, fmt.Errorf("Unable to parse number value: %v", err)
+	}
+	pixels, err = stringToIntArray(record)
+	if err != nil {
+		return -1, nil, fmt.Errorf("Unable to parse pixels: %v", err)
+	}
+	return number, pixels, nil
+}
+
 func GetPrediction(pixels []int, classifier Classifier) (prediction int, closest []int, err error) {
 	prediction, closest, err = classifier.Predict(pixels)
 	return

@@ -8,16 +8,9 @@ type EuclideanClassifier struct {
 
 func (c *EuclideanClassifier) Train(traingingData []string) error {
 	for _, record := range traingingData {
-		actual, err := stringToActual(record)
+		actual, pixels, err := ParseRecord(record)
 		if err != nil {
-			// maybe log error here
-			// for now, skip this record
-			continue
-		}
-		pixels, err := stringToIntArray(record)
-		if err != nil {
-			// maybe log error here
-			// for now, skip this record
+			// maybe log here later; for now, return from this iteration
 			continue
 		}
 		obs := Observation{actual, pixels}
