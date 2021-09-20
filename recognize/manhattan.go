@@ -1,16 +1,32 @@
 package recognize
 
+import "fmt"
+
 type ManhattanClassifier struct {
 	TrainingData []Observation
 }
 
-func (c *ManhattanClassifier) Train(traingingData []string) {
+func (c *ManhattanClassifier) Train(traingingData []string) error {
 	for _, record := range traingingData {
-		actual, _ := stringToActual(record)
-		pixels, _ := stringToIntArray(record)
+		actual, err := stringToActual(record)
+		if err != nil {
+			// maybe log error here
+			// for now, skip this record
+			continue
+		}
+		pixels, err := stringToIntArray(record)
+		if err != nil {
+			// maybe log error here
+			// for now, skip this record
+			continue
+		}
 		obs := Observation{actual, pixels}
 		c.TrainingData = append(c.TrainingData, obs)
 	}
+	if len(c.TrainingData) <= 0 {
+		return fmt.Errorf("Train produced no valid traning data")
+	}
+	return nil
 }
 
 func Abs(input int) int {
@@ -20,7 +36,7 @@ func Abs(input int) int {
 	return input
 }
 
-func (c ManhattanClassifier) Predict(pixels []int) (prediction int, closest []int) {
+func (c ManhattanClassifier) Predict(pixels []int) (prediction int, closest []int, err error) {
 	bestPrediction := -1
 	var bestPixels []int = nil
 	var bestTotal int = 100000000
@@ -35,5 +51,10 @@ func (c ManhattanClassifier) Predict(pixels []int) (prediction int, closest []in
 			bestPixels = train.pixels
 		}
 	}
-	return bestPrediction, bestPixels
+
+	if bestPrediction == -1 {
+		return -1, nil, fmt.Errorf("Unable to get a valid prediction")
+	}
+
+	return bestPrediction, bestPixels, err
 }

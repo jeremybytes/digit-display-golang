@@ -3,7 +3,6 @@ package display
 import "fmt"
 
 func OutputImage(imageData []int) {
-	// build a string
 	var output string
 	for i, pixel := range imageData {
 		outputChar := getDisplayCharForPixel(pixel)

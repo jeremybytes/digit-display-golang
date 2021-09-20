@@ -58,11 +58,9 @@ func main() {
 		log.Fatalf("Unable to load data: %v", err)
 	}
 
-	manClassifier := &recognize.ManhattanClassifier{}
-	manClassifier.Train(training)
-
-	eucClassifier := &recognize.EuclideanClassifier{}
-	eucClassifier.Train(training)
+	//classifier := &recognize.ManhattanClassifier{}
+	classifier := &recognize.EuclideanClassifier{}
+	classifier.Train(training)
 
 	fmt.Println("Done training...")
 
@@ -86,7 +84,11 @@ func main() {
 				// for now, return from this iteration
 				return
 			}
-			prediction, closest := recognize.GetPrediction(pixels, eucClassifier)
+			prediction, closest, err := recognize.GetPrediction(pixels, classifier)
+			if err != nil {
+				// add to missed
+				missed <- Prediction{actual, pixels, prediction, nil}
+			}
 			if prediction != actual {
 				missed <- Prediction{actual, pixels, prediction, closest}
 			}

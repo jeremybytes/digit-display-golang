@@ -12,8 +12,8 @@ type Observation struct {
 }
 
 type Classifier interface {
-	Train(trainingData []string)
-	Predict(pixels []int) (prediction int, closest []int)
+	Train(trainingData []string) error
+	Predict(pixels []int) (prediction int, closest []int, err error)
 }
 
 func stringToActual(record string) (int, error) {
@@ -38,7 +38,7 @@ func stringToIntArray(record string) ([]int, error) {
 	return ints, nil
 }
 
-func GetPrediction(pixels []int, classifier Classifier) (prediction int, closest []int) {
-	prediction, closest = classifier.Predict(pixels)
+func GetPrediction(pixels []int, classifier Classifier) (prediction int, closest []int, err error) {
+	prediction, closest, err = classifier.Predict(pixels)
 	return
 }
