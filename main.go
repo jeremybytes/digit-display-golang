@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,9 +14,10 @@ import (
 	"github.com/jeremybytes/digit-display-golang/recognize"
 )
 
-func writeOutput(prediction int, actual int, pixels []int) {
-	fmt.Printf("Actual: %v - Prediction: %v", actual, prediction)
-	display.OutputImage(pixels)
+func writeOutput(prediction int, actual int, pixels []int, closest []int) {
+	header := fmt.Sprintf("Actual: %v - Prediction: %v\n", actual, prediction)
+	image := display.GetImagesAsString(pixels, closest)
+	fmt.Printf("%v%v", header, image)
 }
 
 type Prediction struct {
@@ -26,6 +28,7 @@ type Prediction struct {
 }
 
 func main() {
+	fmt.Print("\033[H\033[2J")
 	fmt.Printf("STARTING...\n")
 	startTime := time.Now()
 
@@ -56,7 +59,7 @@ func main() {
 			prediction, closest, err := recognize.GetPrediction(pixels, classifier)
 			if prediction != actual || err != nil {
 				// add to missed
-				missed <- Prediction{actual, pixels, prediction, nil}
+				missed <- Prediction{actual, pixels, prediction, closest}
 			}
 			ch <- Prediction{actual, pixels, prediction, closest}
 		}(record)
@@ -70,30 +73,31 @@ func main() {
 
 	total := 0
 	for p := range ch {
-		writeOutput(p.prediction, p.actual, p.pixels)
+		fmt.Printf("\033[0;0H") // moves cursor to top left
+		writeOutput(p.prediction, p.actual, p.pixels, p.closest)
 		total++
 	}
 	elapsed := time.Since(startTime)
 
-	fmt.Println("==============================================")
+	fmt.Println(strings.Repeat("=", 115))
 	fmt.Printf("Total records: %v\n", total)
 	fmt.Printf("Time elapsed: %v\n\n", elapsed)
 	fmt.Println("Press ENTER to show errors")
 	reader := bufio.NewReader(os.Stdin)
 	reader.ReadLine()
 
-	fmt.Println("==============================================")
+	fmt.Println(strings.Repeat("=", 115))
 	fmt.Println("   MISSED RECORDS   ")
-	fmt.Println("==============================================")
+	fmt.Println(strings.Repeat("=", 115))
 
 	missedCount := 0
 	for record := range missed {
 		missedCount++
-		writeOutput(record.prediction, record.actual, record.pixels)
-		display.OutputImage(record.closest)
+		writeOutput(record.prediction, record.actual, record.pixels, record.closest)
+		fmt.Println(strings.Repeat("-", 115))
 	}
 
-	fmt.Println("==============================================")
+	fmt.Println(strings.Repeat("=", 115))
 	fmt.Printf("Total records: %v\n", total)
 	fmt.Printf("Time elapsed: %v\n\n", elapsed)
 	fmt.Printf("Errors: %v", missedCount)
