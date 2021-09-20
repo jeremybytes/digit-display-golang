@@ -17,7 +17,10 @@ import (
 
 func stringToActual(record string) (int, error) {
 	items := strings.Split(record, ",")
-	output, _ := strconv.Atoi(items[0])
+	output, err := strconv.Atoi(items[0])
+	if err != nil {
+		return -1, fmt.Errorf("Unable to parse actual value: %v", err)
+	}
 	return output, nil
 }
 
@@ -25,7 +28,10 @@ func stringToIntArray(record string) ([]int, error) {
 	items := strings.Split(record, ",")
 	ints := make([]int, 784)
 	for i, pixel := range items[1:] {
-		output, _ := strconv.Atoi(pixel)
+		output, err := strconv.Atoi(pixel)
+		if err != nil {
+			return nil, fmt.Errorf("Unable to parse pixel value (%s): %v", pixel, err)
+		}
 		ints[i] = output
 	}
 	return ints, nil
@@ -47,9 +53,9 @@ func main() {
 	fmt.Printf("STARTING...\n")
 	startTime := time.Now()
 
-	training, validation, err := fileloader.LoadData("./data/train.csv", 3000, 1000)
+	training, validation, err := fileloader.LoadData("./data/train.csv", 3000, 100)
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("Unable to load data: %v", err)
 	}
 
 	manClassifier := &recognize.ManhattanClassifier{}
@@ -68,8 +74,18 @@ func main() {
 		wg.Add(1)
 		go func(record string) {
 			defer wg.Done()
-			actual, _ := stringToActual(record)
-			pixels, _ := stringToIntArray(record)
+			actual, err := stringToActual(record)
+			if err != nil {
+				// maybe log here later
+				// for now, return from this iteration
+				return
+			}
+			pixels, err := stringToIntArray(record)
+			if err != nil {
+				// maybe log here later
+				// for now, return from this iteration
+				return
+			}
 			prediction, closest := recognize.GetPrediction(pixels, eucClassifier)
 			if prediction != actual {
 				missed <- Prediction{actual, pixels, prediction, closest}
