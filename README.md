@@ -15,6 +15,20 @@ Functions:
 * Running code in parallel (goroutines)
 * Using channels to communicate between functions
 
-Note:  
+**Command-Line Parameters**  
+Use '-h' or '--help' for a list of available parameters:  
+
+```
+PS D:\digits> .\digit-display-golang.exe -h
+Usage of D:\digits\digit-display-golang.exe:
+  -class string
+        classifier calculation type - currently supported: 'manhattan', 'euclidean' (default "manhattan")
+  -count int
+        number of records to identify (default 1000)
+  -offset int
+        starting record in data set (default 3000)
+```
+
+**Curious Note**  
 
 Running the Euclidean recognizer on 3000 records takes **17-ish seconds**. The equivalent application from the .NET project takes **32-ish seconds** for the same data set. The code is not equivalent (the .NET code has some maps and minBys), but the results are. I'll be exploring this a bit further.
