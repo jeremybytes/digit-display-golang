@@ -6,6 +6,10 @@ type EuclideanClassifier struct {
 	TrainingData []Observation
 }
 
+func (c EuclideanClassifier) String() string {
+	return "Euclidean Classifier"
+}
+
 func (c *EuclideanClassifier) Train(traingingData []string) error {
 	for _, record := range traingingData {
 		actual, pixels, err := ParseRecord(record)

@@ -6,6 +6,10 @@ type ManhattanClassifier struct {
 	TrainingData []Observation
 }
 
+func (c ManhattanClassifier) String() string {
+	return "Manhattan Classifier"
+}
+
 func (c *ManhattanClassifier) Train(traingingData []string) error {
 	for _, record := range traingingData {
 		actual, pixels, err := ParseRecord(record)

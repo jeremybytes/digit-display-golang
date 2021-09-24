@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -28,17 +29,40 @@ type Prediction struct {
 }
 
 func main() {
+
+	// command line flags
+	countPtr := flag.Int("count", 1000, "number of records to identify")
+	offsetPtr := flag.Int("offset", 3000, "starting record in data set")
+	classPtr := flag.String("class", "manhattan", "classifier calculation type - currently supported: 'manhattan', 'euclidean'")
+
+	flag.Parse()
+
+	fmt.Println("count:", *countPtr)
+	fmt.Println("offset:", *offsetPtr)
+	fmt.Println("class:", *classPtr)
+
 	fmt.Print("\033[H\033[2J")
 	fmt.Printf("STARTING...\n")
 	startTime := time.Now()
 
-	training, validation, err := fileloader.LoadData("./data/train.csv", 3000, 1000)
+	training, validation, err := fileloader.LoadData("./data/train.csv", *offsetPtr, *countPtr)
 	if err != nil {
 		log.Fatalf("Unable to load data: %v", err)
 	}
 
-	//classifier := &recognize.ManhattanClassifier{}
-	classifier := &recognize.EuclideanClassifier{}
+	var classifier recognize.Classifier
+
+	switch *classPtr {
+	case "mahattan":
+		classifier = &recognize.ManhattanClassifier{}
+	case "euclidean":
+		classifier = &recognize.EuclideanClassifier{}
+	default:
+		classifier = &recognize.ManhattanClassifier{}
+	}
+
+	fmt.Printf("Using %s\n", classifier)
+
 	classifier.Train(training)
 
 	fmt.Println("Done training...")
@@ -80,6 +104,7 @@ func main() {
 	elapsed := time.Since(startTime)
 
 	fmt.Println(strings.Repeat("=", 115))
+	fmt.Println(classifier)
 	fmt.Printf("Total records: %v\n", total)
 	fmt.Printf("Time elapsed: %v\n\n", elapsed)
 	fmt.Println("Press ENTER to show errors")
@@ -98,6 +123,7 @@ func main() {
 	}
 
 	fmt.Println(strings.Repeat("=", 115))
+	fmt.Println(classifier)
 	fmt.Printf("Total records: %v\n", total)
 	fmt.Printf("Time elapsed: %v\n\n", elapsed)
 	fmt.Printf("Errors: %v", missedCount)
