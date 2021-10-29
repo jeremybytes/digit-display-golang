@@ -13,19 +13,13 @@ import (
 	"github.com/jeremybytes/digit-display-golang/display"
 	"github.com/jeremybytes/digit-display-golang/fileloader"
 	"github.com/jeremybytes/digit-display-golang/recognize"
+	"github.com/jeremybytes/digit-display-golang/shared"
 )
 
-func writeOutput(prediction int, actual int, pixels []int, closest []int) {
-	header := fmt.Sprintf("Actual: %v - Prediction: %v\n", actual, prediction)
-	image := display.GetImagesAsString(pixels, closest)
+func writeOutput(prediction recognize.Prediction) {
+	header := fmt.Sprintf("Actual: %v - Prediction: %v\n", prediction.Actual.Actual, prediction.Predicted.Actual)
+	image := display.GetImagesAsString(prediction.Actual.Image, prediction.Predicted.Image)
 	fmt.Printf("%v%v", header, image)
-}
-
-type Prediction struct {
-	actual     int
-	pixels     []int
-	prediction int
-	closest    []int
 }
 
 func main() {
@@ -33,7 +27,7 @@ func main() {
 	// command line flags
 	countPtr := flag.Int("count", 1000, "number of records to identify")
 	offsetPtr := flag.Int("offset", 3000, "starting record in data set")
-	classPtr := flag.String("class", "manhattan", "classifier calculation type - currently supported: 'manhattan', 'euclidean'")
+	classPtr := flag.String("class", "euclidean", "classifier calculation type - currently supported: 'manhattan', 'euclidean'")
 
 	flag.Parse()
 
@@ -68,24 +62,19 @@ func main() {
 	fmt.Println("Done training...")
 
 	var wg sync.WaitGroup
-	ch := make(chan Prediction)
-	missed := make(chan Prediction, 1000)
+	ch := make(chan recognize.Prediction)
+	missed := make(chan recognize.Prediction, 1000)
 
 	for _, record := range validation {
 		wg.Add(1)
-		go func(record string) {
+		go func(record shared.Record) {
 			defer wg.Done()
-			actual, pixels, err := recognize.ParseRecord(record)
-			if err != nil {
-				// maybe log here later; for now, return from this iteration
-				return
-			}
-			prediction, closest, err := recognize.GetPrediction(pixels, classifier)
-			if prediction != actual || err != nil {
+			prediction, err := recognize.GetPrediction(record, classifier)
+			if prediction.Predicted.Actual != record.Actual || err != nil {
 				// add to missed
-				missed <- Prediction{actual, pixels, prediction, closest}
+				missed <- prediction
 			}
-			ch <- Prediction{actual, pixels, prediction, closest}
+			ch <- prediction
 		}(record)
 	}
 
@@ -98,7 +87,7 @@ func main() {
 	total := 0
 	for p := range ch {
 		fmt.Printf("\033[0;0H") // moves cursor to top left
-		writeOutput(p.prediction, p.actual, p.pixels, p.closest)
+		writeOutput(p)
 		total++
 	}
 	elapsed := time.Since(startTime)
@@ -118,7 +107,7 @@ func main() {
 	missedCount := 0
 	for record := range missed {
 		missedCount++
-		writeOutput(record.prediction, record.actual, record.pixels, record.closest)
+		writeOutput(record)
 		fmt.Println(strings.Repeat("-", 115))
 	}
 

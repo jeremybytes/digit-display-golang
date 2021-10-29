@@ -1,28 +1,21 @@
 package recognize
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/jeremybytes/digit-display-golang/shared"
+)
 
 type ManhattanClassifier struct {
-	TrainingData []Observation
+	TrainingData []shared.Record
 }
 
 func (c ManhattanClassifier) String() string {
 	return "Manhattan Classifier"
 }
 
-func (c *ManhattanClassifier) Train(traingingData []string) error {
-	for _, record := range traingingData {
-		actual, pixels, err := ParseRecord(record)
-		if err != nil {
-			// maybe log here later; for now, return from this iteration
-			continue
-		}
-		obs := Observation{actual, pixels}
-		c.TrainingData = append(c.TrainingData, obs)
-	}
-	if len(c.TrainingData) == 0 {
-		return fmt.Errorf("method Train produced no valid traning data")
-	}
+func (c *ManhattanClassifier) Train(traingingData []shared.Record) error {
+	c.TrainingData = traingingData
 	return nil
 }
 
@@ -33,25 +26,23 @@ func Abs(input int) int {
 	return input
 }
 
-func (c ManhattanClassifier) Predict(pixels []int) (prediction int, closest []int, err error) {
-	bestPrediction := -1
-	var bestPixels []int = nil
+func (c ManhattanClassifier) Predict(input shared.Record) (prediction Prediction, err error) {
+	best := shared.Record{Actual: -1, Image: nil}
 	var bestTotal int = 100000000
 	for _, train := range c.TrainingData {
 		total := 0
-		for i := range pixels {
-			total = total + Abs(pixels[i]-train.pixels[i])
+		for i := range input.Image {
+			total = total + Abs(input.Image[i]-train.Image[i])
 		}
 		if total < bestTotal {
 			bestTotal = total
-			bestPrediction = train.actual
-			bestPixels = train.pixels
+			best = train
 		}
 	}
 
-	if bestPrediction == -1 {
-		return -1, nil, fmt.Errorf("unable to get a valid prediction")
+	if best.Actual == -1 {
+		return Prediction{}, fmt.Errorf("unable to get a valid prediction")
 	}
 
-	return bestPrediction, bestPixels, err
+	return Prediction{Actual: input, Predicted: best}, err
 }
