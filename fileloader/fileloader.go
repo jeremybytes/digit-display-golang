@@ -9,6 +9,8 @@ import (
 	"github.com/jeremybytes/digit-display-golang/shared"
 )
 
+type Record = shared.Record
+
 func trimWhiteSpace(data []string) []string {
 	for i, n := range data {
 		data[i] = strings.TrimSpace(n)
@@ -16,12 +18,12 @@ func trimWhiteSpace(data []string) []string {
 	return data
 }
 
-func LoadData(path string, offset int, recordCount int) (training []shared.Record, validation []shared.Record, err error) {
+func LoadData(path string, offset int, recordCount int) (training []Record, validation []Record, err error) {
 	dataLines, err := getRawData(path)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getDataBytes failed: %v", err)
 	}
-	var allRecords []shared.Record
+	var allRecords []Record
 	for _, line := range dataLines {
 		parsed, err := parseRawData(line)
 		if err != nil {
@@ -64,17 +66,17 @@ func parseRawData(rawData string) ([]int, error) {
 	return ints, nil
 }
 
-func parseRecord(data []int) (shared.Record, error) {
+func parseRecord(data []int) (Record, error) {
 	if len(data) != 785 {
-		return shared.Record{}, fmt.Errorf("incorrect data size; should be 785 found %v", len(data))
+		return Record{}, fmt.Errorf("incorrect data size; should be 785 found %v", len(data))
 	}
 	actual := data[0]
 	image := data[1:]
 
-	return shared.Record{Actual: actual, Image: image}, nil
+	return Record{Actual: actual, Image: image}, nil
 }
 
-func splitDataSets(data []shared.Record, offset int, recordCount int) ([]shared.Record, []shared.Record) {
+func splitDataSets(data []Record, offset int, recordCount int) ([]Record, []Record) {
 	trainingData := append(data[(1+offset+recordCount+1):], data[1:offset]...)
 	validationData := data[(1 + offset):(1 + offset + recordCount)]
 

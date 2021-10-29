@@ -2,19 +2,17 @@ package recognize
 
 import (
 	"fmt"
-
-	"github.com/jeremybytes/digit-display-golang/shared"
 )
 
 type ManhattanClassifier struct {
-	TrainingData []shared.Record
+	TrainingData []Record
 }
 
 func (c ManhattanClassifier) String() string {
 	return "Manhattan Classifier"
 }
 
-func (c *ManhattanClassifier) Train(traingingData []shared.Record) error {
+func (c *ManhattanClassifier) Train(traingingData []Record) error {
 	c.TrainingData = traingingData
 	return nil
 }
@@ -26,8 +24,8 @@ func Abs(input int) int {
 	return input
 }
 
-func (c ManhattanClassifier) Predict(input shared.Record) (prediction Prediction, err error) {
-	best := shared.Record{Actual: -1, Image: nil}
+func (c ManhattanClassifier) Predict(input Record) (prediction Prediction, err error) {
+	best := Record{Actual: -1, Image: nil}
 	var bestTotal int = 100000000
 	for _, train := range c.TrainingData {
 		total := 0

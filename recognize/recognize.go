@@ -6,17 +6,19 @@ import (
 	"github.com/jeremybytes/digit-display-golang/shared"
 )
 
+type Record = shared.Record
+
 type Prediction struct {
-	Actual    shared.Record
-	Predicted shared.Record
+	Actual    Record
+	Predicted Record
 }
 
 type Classifier interface {
-	Train(trainingData []shared.Record) error
-	Predict(input shared.Record) (prediction Prediction, err error)
+	Train(trainingData []Record) error
+	Predict(input Record) (prediction Prediction, err error)
 }
 
-func GetPrediction(input shared.Record, classifier Classifier) (prediction Prediction, err error) {
+func GetPrediction(input Record, classifier Classifier) (prediction Prediction, err error) {
 	prediction, err = classifier.Predict(input)
 	if err != nil {
 		return Prediction{}, fmt.Errorf("method Predict failed: %v", err)
