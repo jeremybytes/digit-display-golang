@@ -28,12 +28,14 @@ func main() {
 	countPtr := flag.Int("count", 1000, "number of records to identify")
 	offsetPtr := flag.Int("offset", 3000, "starting record in data set")
 	classPtr := flag.String("class", "euclidean", "classifier calculation type - currently supported: 'manhattan', 'euclidean'")
+	threadsPtr := flag.Int("threads", 6, "number of threads to use")
 
 	flag.Parse()
 
 	fmt.Println("count:", *countPtr)
 	fmt.Println("offset:", *offsetPtr)
 	fmt.Println("class:", *classPtr)
+	fmt.Println("threads:", *threadsPtr)
 
 	fmt.Print("\033[H\033[2J")
 	fmt.Printf("STARTING...\n")
@@ -65,17 +67,21 @@ func main() {
 	ch := make(chan recognize.Prediction)
 	missed := make(chan recognize.Prediction, 1000)
 
-	for _, record := range validation {
+	chunks := fileloader.ChunkData(validation, *threadsPtr)
+
+	for _, chunk := range chunks {
 		wg.Add(1)
-		go func(record shared.Record) {
+		go func(chunk []shared.Record) {
 			defer wg.Done()
-			prediction, err := recognize.GetPrediction(record, classifier)
-			if prediction.Predicted.Actual != record.Actual || err != nil {
-				// add to missed
-				missed <- prediction
+			for _, record := range chunk {
+				prediction, err := recognize.GetPrediction(record, classifier)
+				if prediction.Predicted.Actual != record.Actual || err != nil {
+					// add to missed
+					missed <- prediction
+				}
+				ch <- prediction
 			}
-			ch <- prediction
-		}(record)
+		}(chunk)
 	}
 
 	go func() {

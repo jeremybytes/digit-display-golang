@@ -82,3 +82,18 @@ func splitDataSets(data []Record, offset int, recordCount int) ([]Record, []Reco
 
 	return trainingData, validationData
 }
+
+func ChunkData(data []Record, chunks int) [][]Record {
+	var results [][]Record
+	chunkSize := len(data) / chunks
+	for i := 0; i < chunks; i++ {
+		if i != chunks-1 {
+			chunk := data[(i * chunkSize):((i + 1) * chunkSize)]
+			results = append(results, chunk)
+		} else {
+			chunk := data[(i * chunkSize):]
+			results = append(results, chunk)
+		}
+	}
+	return results
+}
